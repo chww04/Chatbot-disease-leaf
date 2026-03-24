@@ -1,5 +1,5 @@
 {
   "name": "PhytoScan AI: Plant Pathology Assistant",
-  "description": "Advanced agricultural AI for plant disease diagnosis, severity assessment, and treatment planning using multimodal analysis.",
+  "description": "Advanced agricultural AI for plant disease diagnosis, severity assessment, and treatment planning using multimodal analysis. Now with a secure REST API for integration.",
   "requestFramePermissions": ["camera"]
 }
