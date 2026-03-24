@@ -1,0 +1,5 @@
+{
+  "name": "PhytoScan AI: Plant Pathology Assistant",
+  "description": "Advanced agricultural AI for plant disease diagnosis, severity assessment, and treatment planning using multimodal analysis.",
+  "requestFramePermissions": ["camera"]
+}
