@@ -13,6 +13,7 @@ import numpy as np
 from flask import Flask, request, jsonify
 from PIL import Image
 import tensorflow as tf
+import keras
 from google.cloud import storage
 
 app = Flask(__name__)
@@ -84,7 +85,7 @@ model_ready = download_model_from_gcs()
 
 if model_ready:
     try:
-        model = tf.keras.models.load_model(LOCAL_MODEL_PATH)
+        model = tf.keras.models.load_model(LOCAL_MODEL_PATH, compile=False)
         print("Model loaded successfully!")
     except Exception as e:
         print(f"ERROR loading model: {e}")
