@@ -114,7 +114,7 @@ def health():
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    """Standard prediction endpoint."""
+    """Smart prediction with fallback support."""
     try:
         data = request.get_json()
         if not data or "image" not in data:
@@ -122,23 +122,41 @@ def predict():
 
         image_array = preprocess_image(data["image"])
 
-        if model is not None:
-            predictions = model.predict(image_array, verbose=0)[0]
-            predicted_idx = int(np.argmax(predictions))
-            predicted_class = CLASS_LABELS[predicted_idx]
-            confidence = float(predictions[predicted_idx])
-            all_scores = {CLASS_LABELS[i]: float(predictions[i]) for i in range(len(CLASS_LABELS))}
-        else:
+        if model is None:
             return jsonify({"error": "Model not loaded"}), 503
+
+        predictions = model.predict(image_array, verbose=0)[0]
+        predicted_idx = int(np.argmax(predictions))
+        predicted_class = CLASS_LABELS[predicted_idx]
+        confidence = float(predictions[predicted_idx])
+
+        all_scores = {
+            CLASS_LABELS[i]: float(predictions[i])
+            for i in range(len(CLASS_LABELS))
+        }
 
         disease_data = DISEASE_INFO.get(predicted_class, {})
 
+        
+        HIGH_CONF_THRESHOLD = 0.75
+        LOW_CONF_THRESHOLD = 0.50
+
+        if confidence >= HIGH_CONF_THRESHOLD:
+            decision = "use_model"  
+        elif confidence < LOW_CONF_THRESHOLD:
+            decision = "fallback"    
+        else:
+            decision = "uncertain"  
+
         return jsonify({
+            "source": "rice_model",
+            "decision": decision,
             "predictedClass": predicted_class,
             "confidence": round(confidence, 4),
             "allScores": all_scores,
             "diseaseInfo": disease_data,
-            "isHighConfidence": confidence >= 0.70
+            "isHighConfidence": confidence >= HIGH_CONF_THRESHOLD,
+            "isRiceLikely": confidence >= LOW_CONF_THRESHOLD
         })
 
     except Exception as e:
